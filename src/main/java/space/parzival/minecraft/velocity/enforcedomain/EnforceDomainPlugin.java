@@ -21,6 +21,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 @Slf4j
 @Plugin(id = "enforcedomain", name = "EnforceDomain", version = "1.0", description = "Enforce a domain for all connections", authors = {"Parzival"})
@@ -34,13 +35,12 @@ public class EnforceDomainPlugin {
     private static EnforceDomainPlugin instance;
 
     // config
-    private String domain = "example.com";
-    private boolean allowSubdomains = true;
+    private List<String> domains = List.of( "example.com");
     private boolean allowLocalhost = false;
 
     @Inject
     public EnforceDomainPlugin(ProxyServer proxyServer, @DataDirectory Path dataDirectory) {
-        instance = this;
+        instance = this; // NOSONAR - this is a singleton
         this.proxyServer = proxyServer;
         this.dataDirectory = dataDirectory;
     }
@@ -50,9 +50,8 @@ public class EnforceDomainPlugin {
         // load config
         Toml config = loadConfig("config.toml");
 
-        this.domain = config.getString("domain");
-        this.allowSubdomains = config.getBoolean("allowSubdomains");
-        this.allowLocalhost = config.getBoolean("allowLocalhost");
+        this.domains = config.getList("domains", this.domains);
+        this.allowLocalhost = config.getBoolean("allowLocalhost", this.allowLocalhost);
     }
 
     @Subscribe
@@ -78,8 +77,10 @@ public class EnforceDomainPlugin {
                 || hostname.equals("127.0.0.1")
                 || hostname.equals("::1");
         boolean isAllowed = (isLocalhost && this.allowLocalhost)
-                || (hostname.endsWith(this.domain) && this.allowSubdomains)
-                || hostname.equals(this.domain);
+                || this.domains.stream().anyMatch(domain ->
+                    domain.startsWith("*")
+                            ? hostname.endsWith(domain.substring(1))
+                            : hostname.equals(domain));
 
         if (!isAllowed) {
             Component message = Component.empty()
