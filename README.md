@@ -4,7 +4,7 @@
 This is a very simple plugin for Velocity that will force players to join over a given domain.
 
 ## Installation
-Download the latest plugin jar from the release section and place it in the `plugins` directory of your Velocity server.
+[Download the latest plugin jar](https://github.com/parzival-space/velocity-enforce-domain/releases/latest) from the release section and place it in the `plugins` directory of your Velocity server.
 Then start it up. The plugin will create a configuration file in the `plugins/enforcedomain` directory.
 
 ## Configuration
