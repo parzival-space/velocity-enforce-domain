@@ -77,7 +77,6 @@ class EnforceDomainPluginTest {
         // act
         EnforceDomainPlugin plugin = new EnforceDomainPlugin(proxyServer, CONFIG_PATH);
         plugin.onProxyInitialization(new ProxyInitializeEvent()); // Simulate proxy initialization
-        plugin.onProxyInitialization(new ProxyInitializeEvent()); // Simulate proxy initialization
         plugin.onLogin(event);
 
         // assert
